@@ -1,4 +1,6 @@
 # Robust greedy algorithms for the Max-Cut relaxation
+![Toy graph example B7](/imgs/B7_graph.png)
+
 This is the accompanying code for the paper . In this work we propose an efficient, robust and greedy algorithm for the Max-Cut relaxation. Analysis of the algorithm demonstrate that it always converges to global optimum. The algorithm is robust to random and adversarial initial matrix solution and to random values $r$ of interpolation (see paper). Empirical results, which can be replicated with this implementation, supports our claims.
 
 If you find this work useful please cite,

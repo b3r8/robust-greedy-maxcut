@@ -445,7 +445,6 @@ def main():
     np.random.seed(seed=args.random_seed)
 
     # Read input
-    # Important: input node numeration starts from 1, not 0
     W = scipy.io.loadmat('./inputs/'+args.input_graph+'.mat')
     adj_sparse_mat = W['Problem'][0][0][1]
     n = adj_sparse_mat.shape[0]

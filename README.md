@@ -36,5 +36,11 @@ where:
 ## License
 Our implementation is open-sourced under the Apache-2.0 license. See the [LICENSE](https://github.com/b3r8/robust-greedy-maxcut/blob/main/LICENSE) file for details.
 
+## Colab
+You can also replicate our results with the following google colab notebooks:
+- [Main example](https://colab.research.google.com/drive/1vZtJUD_Afd0HHdPcAthm5QdSYYSfaCJi?usp=sharing)
+- [Robust to random initialization example](https://colab.research.google.com/drive/1j3POFdybDsFk3Kor8AHoMHkiDomPL5Vh?usp=sharing)
+- [Robust to adversarial initialization example](https://colab.research.google.com/drive/1eyaleksxPNne00gMHsylbFVuXvu6bkQJ?usp=sharing)
+
 ## Contact
 Bernardo Gonzalez <[bernardo.gtorres@gmail.com](mailto:bernardo.gtorres@gmail.com)>

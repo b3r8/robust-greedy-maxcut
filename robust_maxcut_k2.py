@@ -183,9 +183,9 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
             # Compute duality gap
             GAP.append(DUAL_OPT[-1] - CUT[-1-n])
 
-        # Stop criteria: the algorithm has finished when all vectors are already
-        # pointing in the direction of the partial derivative (i.e., all thetas=0)
-        # (see paper)
+        # Stop criteria: the algorithm has finished when all vectors are
+        # already pointing in the direction of the partial derivative (i.e.,
+        # all thetas=0, see paper)
         if min(COS_THETA[0-n:]) > 1-tol:
             print('Stop criteria reached')
             stop_criteria = True
@@ -280,7 +280,8 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
         os.makedirs(results_dir)
 
     scipy.io.savemat(results_dir+graph+'_k2.mat', to_file)
-    print('\nSolution, optimal cut, and related info stored at '+results_dir)
+    print('\nSolution, optimal cut, and related info stored at {}'.
+           format(results_dir))
 
     # Check if correctly saved
     from_file = scipy.io.loadmat(results_dir+graph+'_k2.mat')
@@ -432,7 +433,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
         plt.legend()
         plt.savefig(plots_dir+'rank_convergence_'+graph+'_k2.png')
 
-    print('\nConvergence plots stored at '+plots_dir)
+    print('\nConvergence plots stored at {}'.format(plots_dir))
 
 
 def main():

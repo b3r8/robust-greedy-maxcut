@@ -55,7 +55,6 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     max_iterations [int]:                   Max iterations (outer loop)
     tol [float]:                            Tolerance for convergence
     fast_execution [bool]:                  If True, avoid extra computations
-    rank [int]:                             Initial rank of solution matrix
     adj_sparse_mat [scipy sparse array]:    Sparse matrix of weights W
     neighbors [dictionary]:                 Neighbors of every node
     n [int]:                                Number of nodes

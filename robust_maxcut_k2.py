@@ -23,8 +23,9 @@ def matrix_rank(A):
 
     Output
     -------
-    rank_99 [int] :          Rank of input to keep 99% of "signal"
-    rank_999 [int] :         Rank of input to keep 99.9% of "signal"
+    rank_99 [int] :             Rank of input to keep 99% of "signal"
+    rank_999 [int] :            Rank of input to keep 99.9% of "signal"
+    eig_norm [numpy array] :    "Normalized" eigenvalues of matrix A
     '''
 
     # Compute singular values of input
@@ -35,30 +36,30 @@ def matrix_rank(A):
 
     # L1-normalize
     # (i.e., compute how much each eigenvalue contributes to "signal")
-    eigenvalues_norm = eigenvalues/sum(eigenvalues)
+    eig_norm = eigenvalues/sum(eigenvalues)
 
     # Compute how many eigenvalues do we need to keep % of "signal"
-    eigenvalues_norm_cum = np.cumsum(eigenvalues_norm)
+    eigenvalues_norm_cum = np.cumsum(eig_norm)
     rank_99 = np.where(eigenvalues_norm_cum >= .99)[0][0]
     rank_999 = np.where(eigenvalues_norm_cum >= .999)[0][0]
 
-    return rank_99, rank_999
+    return rank_99, rank_999, eig_norm
 
-def algorithm1(graph, max_iterations, tol, fast_execution,
-               adj_sparse_mat, neighbors, n, solver_cut):
+def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n,
+               solver_cut):
     '''
     Algorithm 1 from paper. Solve Max-Cut relaxation for k=2.
     
     Inputs:
     ----------
-    graph [str]:                            Input graph name (G1, G2, ...)
-    max_iterations [int]:                   Max iterations (outer loop)
-    tol [float]:                            Tolerance for convergence
-    fast_execution [bool]:                  If True, avoid extra computations
-    adj_sparse_mat [scipy sparse array]:    Sparse matrix of weights W
-    neighbors [dictionary]:                 Neighbors of every node
-    n [int]:                                Number of nodes
-    solver_cut [float]:                     Optimal cut found by solver
+    graph [str]:                      Input graph name (G1, G2, ...)
+    max_iterations [int]:             Max iterations (outer loop)
+    tol [float]:                      Tolerance for convergence
+    fast_execution [bool]:            If True, avoid extra computations
+    W [scipy csc array]:              Sparse matrix of weights W
+    neighbors [dictionary]:           Neighbors of every node
+    n [int]:                          Number of nodes
+    solver_cut [float]:               Optimal cut found by solver
 
     Output:
     ----------
@@ -66,7 +67,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     '''
     print('\nExecuting algorithm 1 from paper')
 
-    # Preliminaries
+    # PRELIMINARIES
 
     # Array to store s values through execution (see paper)
     S = []
@@ -76,9 +77,6 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
 
     # Array to store duality gap values through execution
     GAP = []
-
-    # Array to store ||V^{t+1}_i - V^t_i|| values through execution
-    DELTA = []
 
     # Array to store solution matrix (V) rank (99% preserv.)
     RANK99 = []
@@ -108,14 +106,17 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     brute_cut = 0
     for i in range(n):
         for j in neighbors[i]:
-            w = adj_sparse_mat[(i,j)]
+            w = W[(i,j)]
             brute_cut += w*(1. - np.dot(solution[i], solution[j]))
 
     cut = 0.25*brute_cut
     CUT.append(cut)
 
     # Compute constant part of function to optimize
-    opt_constant = 0.25*adj_sparse_mat.data.sum()
+    opt_constant = 0.25*W.data.sum()
+
+    # Compute tolerance for angle (see paper)
+    angle_tol = (tol**2)/2
 
     # START ALGORITHM
     # To measure execution time
@@ -125,16 +126,19 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     for t in range(max_iterations):
         print('iteration number: {}'.format(t))
 
-        # Update every vector greedily (this loop is done in order in paper)
+        # Update every vector greedily
+        # (this loop is done in order in paper)
         for i in np.random.permutation(n):
             v = solution[i]
 
-            # Compute partial derivative EFFICIENTLY (only non-zero weights)
+            # Compute partial derivative EFFICIENTLY
+            # (only non-zero weights)
             partial_deriv = np.zeros(n)
             for j in neighbors[i]:
-                partial_deriv -= adj_sparse_mat[(i,j)]*solution[j]
+                partial_deriv -= W[(i,j)]*solution[j]
 
-            # New vector is the partial derivative normalized (i.e., norm = 1)
+            # New vector is the partial derivative normalized
+            # (i.e., norm = 1)
             s = np.linalg.norm(partial_deriv)
             S.append(s)
 
@@ -153,10 +157,6 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
             cut = CUT[-1]+cut_improvement
             CUT.append(cut)
 
-            if not(fast_execution):
-                # Compute and store v_i change (i.e., ||v^{t+1}_i - v^t_i||)
-                DELTA.append(np.linalg.norm(new_v - v))
-
             # Update V_i
             solution[i] = new_v
 
@@ -170,22 +170,20 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
                 iter_to_99 = t
                 step_to_99 = step_counter
 
+        # Compute and store current dual optimal (see paper)
+        DUAL_OPT.append((sum(S[0-n:])/4) + opt_constant)
+
+        # Compute duality gap
+        GAP.append(DUAL_OPT[-1] - CUT[-1-n])
+
         if not(fast_execution):
             # Compute and store rank of updated matrix V
-            ranks = matrix_rank(solution)
-            RANK99.append(ranks[0])
-            RANK999.append(ranks[1])
+            rank99, rank999, _ = matrix_rank(solution)
+            RANK99.append(rank99)
+            RANK999.append(rank999)
 
-            # Compute and store current dual optimal (see paper)
-            DUAL_OPT.append((sum(S[0-n:])/4) + opt_constant)
-
-            # Compute duality gap
-            GAP.append(DUAL_OPT[-1] - CUT[-1-n])
-
-        # Stop criteria: the algorithm has finished when all vectors are
-        # already pointing in the direction of the partial derivative (i.e.,
-        # all thetas=0, see paper)
-        if min(COS_THETA[0-n:]) > 1-tol:
+        # Stop criteria (All thetas=0 and strong duality, see paper)
+        if min(COS_THETA[0-n:]) >= 1-angle_tol and GAP[-1] <= tol:
             print('Stop criteria reached')
             stop_criteria = True
             break
@@ -195,39 +193,21 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
 
     # FINISH ALGORITHM
 
-    # Solution
-
-    # Compute final dual optimal (see paper)
-    dual_optimal = (sum(S[0-n:])/4) + opt_constant
-
-    # Compute final duality gap
-    duality_gap = dual_optimal - CUT[-1-n]
+    # SOLUTION
 
     # Compute difference between our solution and solver solution
     difference = solver_cut-cut
 
     # Compute final spectrum of solution matrix V
 
-    # Compute singular values of V
-    singular_values = np.linalg.svd(solution, compute_uv=False)
-
-    # Compute eigenvalues of AA^t (in our case, VV^t = X)
-    eigenvalues = singular_values**2
-
-    # L1-normalize
-    # (i.e., compute how much each eigenvalue contributes to "signal")
-    eigenvalues_norm = eigenvalues/sum(eigenvalues)
-
-    # Compute how many eigenvalues do we need to keep 99.9% of "signal"
-    eigenvalues_norm_cum = np.cumsum(eigenvalues_norm)
-    rank_999 = np.where(eigenvalues_norm_cum >= .999)[0][0]
+    _, rank999, eigenvalues_norm = matrix_rank(solution)
 
     print('\nNumber of iterations: {}'.format(t))
     print('Stop criteria reached: {}'.format(stop_criteria))
-    print('Final rank (99.9%) of V: {}'.format(rank_999))
+    print('Final rank (99.9%) of V: {}'.format(rank999))
     print('Optimal cut found: {}'.format(CUT[-1]))
-    print('Dual optimal found: {}'.format(dual_optimal))
-    print('Final duality gap: {}'.format(duality_gap))
+    print('Dual optimal found: {}'.format(DUAL_OPT[-1]))
+    print('Final duality gap: {}'.format(GAP[-1]))
     print('Execution time [s]: {}'.format(duration))
     print('Iterations to reach 99% of solver solution: {}'.format(iter_to_99))
     print('Execution time to reach 99% of solver solution [s]: {}'.
@@ -250,7 +230,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     brute_cut = 0
     for i in range(n):
         for j in neighbors[i]:
-            w = adj_sparse_mat[(i,j)]
+            w = W[(i,j)]
             if n < 10000:
                 brute_cut += w*(1. - X[i][j])
             else:
@@ -265,9 +245,9 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     # Store solution in memory
     to_file = {'k': 2, 'graph': graph, 'n': n, 'tolerance': tol,
                'V': solution,  'optimal_cut': cut,
-               'dual_optimal': dual_optimal, 'dual_gap': duality_gap,
+               'dual_optimal': DUAL_OPT[-1], 'dual_gap': GAP[-1],
                'iterations': t, 'stop_criteria_reached': stop_criteria,
-               'final_rank': rank_999, 'time': duration,
+               'final_rank': rank999, 'time': duration,
                'steps_to_99': step_to_99, 'iterations_to_99': iter_to_99,
                'time_to_99': time_to_99,
                'difference_wrt_optimal_solver': difference,
@@ -346,10 +326,47 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     plt.legend()
     plt.savefig(plots_dir+'cos_theta_convergence_'+graph+'_k2.png')
 
-    # Plot final spectrum of solution
-    x = range(rank_999)
+    # Plot dual optimal convergence
+    x = range(len(DUAL_OPT))
     fig, ax = plt.subplots()
-    ax.plot(x, eigenvalues_norm[:rank_999], 'ro-',
+    ax.plot(x, DUAL_OPT, label='dual solution')
+    ax.set(xlabel='iteration', ylabel='dual optimal',
+           title='dual convergence')
+
+    # Add best solution found by solver
+    ax.axhline(y = solver_cut, color = 'r',
+               linestyle = 'dashed',
+               label='solver solution')
+
+    # Add step when we reach 99% of solver solution
+    ax.axvline(x = iter_to_99, color = 'g',
+               linestyle = 'dashed',
+               label='iterations to reach 99% of solver solution')
+
+    ax.grid()
+    plt.legend()
+    plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2.png')
+
+    # Plot duality gap convergence
+    x = range(len(GAP))
+    fig, ax = plt.subplots()
+    ax.plot(x, GAP, label='duality gap')
+    ax.set(xlabel='iteration', ylabel='gap',
+           title='duality gap convergence')
+
+    # Add step when we reach 99% of solver solution
+    ax.axvline(x = iter_to_99, color = 'g',
+               linestyle = 'dashed',
+               label='iterations to reach 99% of solver solution')
+
+    ax.grid()
+    plt.legend()
+    plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2.png')
+
+    # Plot final spectrum of solution
+    x = range(rank999)
+    fig, ax = plt.subplots()
+    ax.plot(x, eigenvalues_norm[:rank999], 'ro-',
             label='spectrum (99.9%) of V', linewidth=1)
     ax.set(xlabel='i-th eigenvalue', ylabel='normalized eigenvalue',
            title='spectrum (99.9%) of V')
@@ -359,60 +376,6 @@ def algorithm1(graph, max_iterations, tol, fast_execution,
     plt.savefig(plots_dir+'final_spectrum_'+graph+'_k2.png')
 
     if not(fast_execution):
-        # Plot ||V^{t+1}_i - V^t_i|| convergence
-        x = range(len(DELTA))
-        fig, ax = plt.subplots()
-        ax.plot(x, DELTA, label='change in $v_i$')
-        ax.set(xlabel='inner step',
-            ylabel='change in $v_i$',
-            title='change in $v_i$ convergence')
-
-        # Add step when we reach 99% of solver solution
-        ax.axvline(x = step_to_99, color = 'g',
-                linestyle = 'dashed',
-                label='steps to reach 99% of solver solution')
-
-        ax.grid()
-        plt.legend()
-        plt.savefig(plots_dir+'delta_convergence_'+graph+'_k2.png')
-
-        # Plot dual optimal convergence
-        x = range(len(DUAL_OPT))
-        fig, ax = plt.subplots()
-        ax.plot(x, DUAL_OPT, label='dual solution')
-        ax.set(xlabel='iteration', ylabel='dual optimal',
-               title='dual convergence')
-
-        # Add best solution found by solver
-        ax.axhline(y = solver_cut, color = 'r',
-                linestyle = 'dashed',
-                label='solver solution')
-
-        # Add step when we reach 99% of solver solution
-        ax.axvline(x = iter_to_99, color = 'g',
-                linestyle = 'dashed',
-                label='iterations to reach 99% of solver solution')
-
-        ax.grid()
-        plt.legend()
-        plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2.png')
-
-        # Plot duality gap convergence
-        x = range(len(GAP))
-        fig, ax = plt.subplots()
-        ax.plot(x, GAP, label='duality gap')
-        ax.set(xlabel='iteration', ylabel='gap',
-               title='duality gap convergence')
-
-        # Add step when we reach 99% of solver solution
-        ax.axvline(x = iter_to_99, color = 'g',
-                linestyle = 'dashed',
-                label='iterations to reach 99% of solver solution')
-
-        ax.grid()
-        plt.legend()
-        plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2.png')
-
         # Plot solution rank convergence
         x99 = range(len(RANK99))
         fig, ax = plt.subplots()
@@ -445,17 +408,17 @@ def main():
     np.random.seed(seed=args.random_seed)
 
     # Read input
-    W = scipy.io.loadmat('./inputs/'+args.input_graph+'.mat')
-    adj_sparse_mat = W['Problem'][0][0][1]
-    n = adj_sparse_mat.shape[0]
-    m = adj_sparse_mat.size/2
+    input_dict = scipy.io.loadmat('./inputs/'+args.input_graph+'.mat')
+    W = input_dict['Problem'][0][0][1]
+    n = W.shape[0]
+    m = W.size/2
     print('number of nodes: {}'.format(n))
     print('number of edges: {}'.format(m))
 
     # For efficiency: create a dictionary of neighbors for every node
     neighbors = {}
     for i in range(n):
-        neighbors[i] = np.nonzero(adj_sparse_mat[i].toarray()[0])[0]
+        neighbors[i] = np.nonzero(W[i].toarray()[0])[0]
 
     # Compute maximum and minimum degree of graph,
     # degree as number of neighbors, not sum of adjacent edge's weights
@@ -469,8 +432,8 @@ def main():
     print('Minimum degree of G: {}'.format(minimum_degree))
 
     # Sanity check: check max and min values in W
-    print('max(W): {}'.format(max(adj_sparse_mat.data)))
-    print('min(W): {}'.format(min(adj_sparse_mat.data)))
+    print('max(W): {}'.format(max(W.data)))
+    print('min(W): {}'.format(min(W.data)))
 
     # Sanity check: check if disconnected graph
     isolated_nodes_counter = 0
@@ -499,8 +462,7 @@ def main():
 
     # Algorithm
     algorithm1(args.input_graph, args.max_iterations, args.tol,
-               args.fast_execution, adj_sparse_mat, neighbors, n,
-               solver_cut)
+               args.fast_execution, W, neighbors, n, solver_cut)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
@@ -517,8 +479,8 @@ if __name__ == '__main__':
                         metavar='Random seed', help='random seed for numpy')
     parser.add_argument('--fast_execution', type=lambda x: bool(strtobool(x)),
                         default=False, metavar='Fast execution option',
-                        help='If True, some computations (like ranks and \
-                        dual optimal) are avoided')
+                        help='If True, some computations (rank of current\
+                        solution) are avoided')
 
     args = parser. parse_args()
 

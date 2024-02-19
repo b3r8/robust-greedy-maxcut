@@ -199,7 +199,6 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n,
     difference = solver_cut-cut
 
     # Compute final spectrum of solution matrix V
-
     _, rank999, eigenvalues_norm = matrix_rank(solution)
 
     print('\nNumber of iterations: {}'.format(t))

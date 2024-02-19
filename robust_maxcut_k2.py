@@ -471,7 +471,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_iterations', type=int, default=1000,
                         metavar='Max iterations',
                         help='maximum number of iterations for outer loop')
-    parser.add_argument('--tol', type=float, default=0.00001,
+    parser.add_argument('--tol', type=float, default=0.005,
                         metavar='Tolerance',
                         help='used to evaluate convergence of algorithm')
     parser.add_argument('--random_seed', type=int, default=0,

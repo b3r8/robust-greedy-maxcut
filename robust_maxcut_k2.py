@@ -19,7 +19,7 @@ def matrix_rank(A):
 
     Input
     ----------
-    A [numpy array] :        Input matrix
+    A [numpy array] :           Input matrix
 
     Output
     -------

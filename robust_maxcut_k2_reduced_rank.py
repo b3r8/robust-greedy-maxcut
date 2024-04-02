@@ -92,6 +92,9 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
     # (i.e., 0.5*max improvement, see paper)
     DUAL_RESD = []
 
+    # Compute initial rank (see paper)
+    rank = int(np.sqrt(2*(n+1)))
+
     # Inner step counter
     step_counter = 0
 
@@ -99,7 +102,11 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
     stop_criteria = False
 
     # Initial solution (see paper)
-    solution = np.eye(n,n)
+    solution = np.random.normal(0, 1, (n,rank))
+    for i in range(n):
+        row = solution[i]
+        normalized_row = row/np.linalg.norm(row)
+        solution[i] = normalized_row
 
     # Append initial cut to array
     brute_cut = 0
@@ -136,7 +143,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
             # Compute partial derivative EFFICIENTLY
             # (only non-zero weights)
-            partial_deriv = np.zeros(n)
+            partial_deriv = np.zeros(rank)
             for j in neighbors[i]:
                 partial_deriv -= W[(i,j)]*solution[j]
 
@@ -250,23 +257,23 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
                'dual_optimal': DUAL_OPT[-1], 'dual_gap': GAP[-1],
                'dual_residual': DUAL_RESD[-1], 'iterations': t+1,
                'stop_criteria_reached': stop_criteria, 'final_rank': rank999,
-               'time': duration, 'initial_rank': n}
+               'time': duration, 'initial_rank': rank}
 
     results_dir = './python_solutions/'
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
 
-    scipy.io.savemat(results_dir+graph+'_k2.mat', to_file)
+    scipy.io.savemat(results_dir+graph+'_k2_reduced_rank.mat', to_file)
     print('\nSolution, optimal cut, and related info stored at {}'.
            format(results_dir))
 
     # Check if correctly saved
-    from_file = scipy.io.loadmat(results_dir+graph+'_k2.mat')
+    from_file = scipy.io.loadmat(results_dir+graph+'_k2_reduced_rank.mat')
     print('\nOptimal cut saved to file: {}'.
           format(from_file['optimal_cut'][0][0]))
 
     # Plots of convergence
-    plots_dir = './python_solutions/plots/'+graph+'_k2/'
+    plots_dir = './python_solutions/plots/'+graph+'_k2_reduced_rank/'
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
 
@@ -279,7 +286,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'cut_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'cut_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot s convergence
     x = range(len(S))
@@ -290,7 +297,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'s_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'s_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot cos(theta) convergence
     x = range(len(COS_THETA))
@@ -302,7 +309,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'cos_theta_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'cos_theta_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot dual optimal convergence
     x = range(len(DUAL_OPT))
@@ -313,7 +320,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot duality gap convergence
     x = range(len(GAP))
@@ -324,7 +331,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot dual residual convergence
     x = range(len(DUAL_RESD))
@@ -335,7 +342,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'dual_residual_convergence_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'dual_residual_convergence_'+graph+'_k2_reduced_rank.png')
 
     # Plot final spectrum of solution
     x = range(rank999)
@@ -347,7 +354,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'final_spectrum_'+graph+'_k2.png')
+    plt.savefig(plots_dir+'final_spectrum_'+graph+'_k2_reduced_rank.png')
 
     if not(fast_execution):
         # Plot solution rank convergence
@@ -362,7 +369,7 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
 
         ax.grid()
         plt.legend()
-        plt.savefig(plots_dir+'rank_convergence_'+graph+'_k2.png')
+        plt.savefig(plots_dir+'rank_convergence_'+graph+'_k2_reduced_rank.png')
 
     print('\nConvergence plots stored at {}'.format(plots_dir))
 

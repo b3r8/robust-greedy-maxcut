@@ -1,7 +1,12 @@
-# Robust greedy algorithms for the Max-Cut relaxation
+# Fast and Provable Greedy Algorithms for the Max-Cut Relaxation
 ![Toy graph example B7](/imgs/B7_graph.png)
 
-This is the accompanying code for the paper . In this work we propose an efficient, robust and greedy algorithm for the Max-Cut relaxation. Analysis of the algorithm demonstrate that it always converges to global optimum. The algorithm is robust to random and adversarial initial matrix solution and to random values $r$ of interpolation (see paper). Empirical results, which can be replicated with this implementation, supports our claims.
+This is the accompanying code for the paper "Fast and Provable Greedy Algorithms for the Max-Cut Relaxation". In this work we propose simple and provable, fast greedy algorithms to solve the semidefinite programming relaxation proposed by Goemans and Williamson.
+
+Analysis of the algorithm demonstrate that it always converges to the global optimum. Cuts found by the algorithms are monotonically non-decreasing, and will keep improving until no improvement can be made. The C++ implementation
+of algorithm 2 (low rank) can solve the Max-Cut relaxation for graphs with thousands of nodes in a matter of seconds in a desktop machine.
+
+Empirical results, which can be replicated with this implementation, supports our claims.
 
 If you find this work useful please cite,
 
@@ -10,7 +15,7 @@ If you find this work useful please cite,
 ## Description
 The input graphs must be stored in the `input` folder and must follow the same format as the G set graphs in this [link](https://sparse.tamu.edu/Gset).
 
-We used an open source solver to find the optimal (relaxed) solution for the G set graphs and the toy size B graphs. The optimal solutions found are stored in the `solver_optimal_cuts.mat` in the `solver_solutions` folder.
+We used an open source solver to find the optimal solution for the G set graphs and the toy size B graphs. The optimal solutions found are stored in the `solver_optimal_cuts.mat` in the `solver_solutions` folder.
 
 To run the code:
 

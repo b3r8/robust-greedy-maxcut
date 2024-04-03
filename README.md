@@ -79,7 +79,6 @@ where:
 ## Dependencies
 
 ### C++
-- GNU compiler
 - [Eigen](https://libeigen.gitlab.io/docs/index.html) 3.3.9
 
 ### Python

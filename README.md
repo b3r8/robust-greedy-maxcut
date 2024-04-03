@@ -80,7 +80,7 @@ where:
 
 ### C++
 - GNU compiler
-- Eigen 3.3.9
+- [Eigen](https://libeigen.gitlab.io/docs/index.html) 3.3.9
 
 ### Python
 - python 3.9.18

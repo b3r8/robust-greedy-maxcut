@@ -32,7 +32,7 @@ g++ -I /path/to/folder/eigen-3.3.9/ algorithm1.cpp -o algorithm1 -O2
 To run algorithm 1:
 
 ``` cpp
-./algorithm2 ./inputs/G11.txt 0.001 1000
+./algorithm1 ./inputs/G11.txt 0.001 1000
 ```
 
 where:
@@ -42,29 +42,31 @@ where:
 
 The instructions to compile and run the rest of C++ implementations (algorithm2, algorithm2_snap, and algorithm2_snap_fixed_rank) are the same as for algorithm1 but with the name of the algorithm modified accordingly.
 
-**Very important: do not forget to use the flag** `-O2` **to compile the codes.**
+**Very important: do not forget to use the flag** `-O2` **to compile the codes, otherwise the algorithms will be slow.**
 
 ### Python implementation
-The input graphs must be stored in the `input` folder and must follow the same format as the G set graphs in this [link](https://sparse.tamu.edu/Gset).
+In addition to our implementation in C++, we implemented our algorithm in Python. This implementation is not as efficient in time and space as the implementation in C++, but allow us to easily plot the convergence of different quantities during the execution of the algorithm.
+
+The input graphs must be stored in the `input` folder and must follow the same format as the G set graphs in this [link](https://sparse.tamu.edu/Gset). An example is shown for G11 (`G11.mat` file) in this repo.
 
 We used an open source solver ([SCS](https://www.cvxgrp.org/scs/index.html) with [CVXPY](https://www.cvxpy.org/)) to find the optimal solution for the G set graphs to compare our results.
 
 To run algorithm 1:
 
 ``` python
-python robust_maxcut_k2.py --input_graph G11 --fast_execution on
+python robust_maxcut_k2.py --input_graph G11 --max_iterations 1000 --tol 0.001 --random_seed 0 --fast_execution on
 ```
 
 To run algorithm 2 (low rank):
 
 ``` python
-python robust_maxcut_k2_reduced_rank.py --input_graph G11 --fast_execution on
+python robust_maxcut_k2_reduced_rank.py --input_graph G11 --max_iterations 1000 --tol 0.001 --random_seed 0 --fast_execution on
 ```
 
 To run SCS (with CVXPY):
 
 ``` python
-python cvxpy_maxcut_k2.py --input_graph G11
+python cvxpy_maxcut_k2.py --input_graph G11 --max_iterations 1000 --tol 0.001 --random_seed 0
 ```
 
 where:
@@ -92,7 +94,7 @@ where:
 Our implementation is open-sourced under the Apache-2.0 license. See the [LICENSE](https://github.com/b3r8/robust-greedy-maxcut/blob/main/LICENSE) file for details.
 
 ## Colab
-You can also replicate our results with the following google colab notebooks:
+You can also replicate our python implementation results with the following google colab notebooks:
 - [Main example](https://colab.research.google.com/drive/1vZtJUD_Afd0HHdPcAthm5QdSYYSfaCJi?usp=sharing)
 
 ## Contact

@@ -42,7 +42,7 @@ where:
 
 The instructions to compile and run the rest of C++ implementations (algorithm2, algorithm2_snap, and algorithm2_snap_fixed_rank) are the same as for algorithm1 but with the name of the algorithm modified accordingly.
 
-**Very important: do not forget to use the flag** `-O2` **to compile the codes, otherwise the algorithms will be slow.**
+**Very important: do not forget to use the flag** `-O2` **to compile the codes, otherwise the implementations will be slow.**
 
 ### Python implementation
 In addition to our implementation in C++, we implemented our algorithm in Python. This implementation is not as efficient in time and space as the implementation in C++, but allow us to easily plot the convergence of different quantities during the execution of the algorithm.
@@ -90,12 +90,12 @@ where:
 - distutils 3.9.18
 - cvxpy 1.4.2 (only used for comparison, not necessary for algorithms' implementation)
 
-## License
-Our implementation is open-sourced under the Apache-2.0 license. See the [LICENSE](https://github.com/b3r8/robust-greedy-maxcut/blob/main/LICENSE) file for details.
-
 ## Colab
 You can also replicate our python implementation results with the following google colab notebooks:
 - [Main example](https://colab.research.google.com/drive/1vZtJUD_Afd0HHdPcAthm5QdSYYSfaCJi?usp=sharing)
+
+## License
+Our implementation is open-sourced under the Apache-2.0 license. See the [LICENSE](https://github.com/b3r8/robust-greedy-maxcut/blob/main/LICENSE) file for details.
 
 ## Contact
 Bernardo Gonzalez <[bernardo.gtorres@gmail.com](mailto:bernardo.gtorres@gmail.com)>

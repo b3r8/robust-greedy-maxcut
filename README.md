@@ -1,7 +1,7 @@
-# Fast and Provable Greedy Algorithms for the Max-Cut Relaxation
+# Simple, Fast and Provable Greedy Algorithms for the Goemans and Williamson Max-Cut Relaxation
 ![Toy graph example B7](/imgs/B7_graph.png)
 
-This is the accompanying code for the paper "Fast and Provable Greedy Algorithms for the Max-Cut Relaxation". In this work we propose simple and provable, fast greedy algorithms to solve the semidefinite programming relaxation proposed by Goemans and Williamson.
+This is the accompanying code for the paper "Simple, Fast and Provable Greedy Algorithms for the Goemans and Williamson Max-Cut Relaxation". In this work we propose simple and provable, fast greedy algorithms to solve the semidefinite programming relaxation proposed by Goemans and Williamson.
 
 Analysis of the algorithm demonstrate that it always converges to the global optimum. Cuts found by the algorithms are monotonically non-decreasing, and will keep improving until no improvement can be made. The C++ implementation
 of algorithm 2 (low rank) can solve the Max-Cut relaxation for graphs with thousands of nodes in a matter of seconds in a desktop machine. Empirical results, which can be replicated with this implementation, supports our claims.
@@ -15,7 +15,7 @@ If you find this work useful please cite,
 ### C++ implementation
 For the G set graphs, the input graphs must be stored in the `input` folder and must follow the same format as the example shown for G11 (`G11.txt` file) in this repo. The `G11.mat` file is the input file for the python implementations of the algorithm.
 
-For the SNAP set graphs, the input graphs must be stored in the `input` folder and must follow the same format as the example shown for the Amazon graph (`amazon.txt` file) in this repo. The main difference with respect to the input files for the G set graphs is that the input files for the SNAP set graphs does not include the weights of the edges, because the weight is equal to one for all edges. This allow us to save space for storing these graphs.
+For the SNAP set graphs, the input graphs must be stored in the `input` folder and must follow the same format as the example shown for the Amazon graph (`amazon.txt` file) in this repo. The main difference with respect to the input files for the G set graphs is that the input files for the SNAP set graphs does not include the weights of the edges, because the weight is equal to one for all edges. This allow us to save storage space for these graphs.
 
 Four algorithms were implemented in C++:
 - `algorithm1.cpp`, implementation of Algorithm 1 (full rank) in the paper.

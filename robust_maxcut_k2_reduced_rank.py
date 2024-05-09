@@ -273,103 +273,104 @@ def algorithm1(graph, max_iterations, tol, fast_execution, W, neighbors, n):
           format(from_file['optimal_cut'][0][0]))
 
     # Plots of convergence
+    plt.rcParams['font.size'] = 21
+
     plots_dir = './python_solutions/plots/'+graph+'_k2_reduced_rank/'
     if not os.path.isdir(plots_dir):
         os.makedirs(plots_dir)
 
-    # Plot cut convergence
+    # Plot solution convergence
     x = range(len(CUT))
     fig, ax = plt.subplots()
-    ax.plot(x, CUT, label='primal solution')
-    ax.set(xlabel='inner step', ylabel='optimal cut',
-        title='cut convergence')
+    ax.plot(x, CUT, label='solution')
+    ax.set(xlabel='inner step')
 
     ax.grid()
-    plt.legend()
-    plt.savefig(plots_dir+'cut_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.legend(loc='lower right')
+    plt.savefig(plots_dir+'cut_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot s convergence
     x = range(len(S))
     fig, ax = plt.subplots()
-    ax.plot(x, S, label='$s_i$: norm of derivative')
-    ax.set(xlabel='inner step', ylabel='$s_i$',
-        title='$s_i$ convergence')
+    ax.plot(x, S, label='$s_i$')
+    ax.set(xlabel='inner step')
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'s_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.savefig(plots_dir+'s_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot cos(theta) convergence
     x = range(len(COS_THETA))
     fig, ax = plt.subplots()
     ax.plot(x, COS_THETA, label='cos($\\theta_i$)')
-    ax.set(xlabel='inner step',
-           ylabel='cos($\\theta_i$)',
-           title='cos($\\theta_i$) convergence')
+    ax.set(xlabel='inner step')
 
     ax.grid()
-    plt.legend()
-    plt.savefig(plots_dir+'cos_theta_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.legend(loc='lower right')
+    plt.savefig(plots_dir+'cos_theta_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot dual optimal convergence
     x = range(len(DUAL_OPT))
     fig, ax = plt.subplots()
     ax.plot(x, DUAL_OPT, label='dual solution')
-    ax.set(xlabel='iteration', ylabel='dual optimal',
-           title='dual convergence')
+    ax.set(xlabel='iteration')
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.savefig(plots_dir+'dual_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot duality gap convergence
     x = range(len(GAP))
     fig, ax = plt.subplots()
     ax.plot(x, GAP, label='duality gap')
-    ax.set(xlabel='iteration', ylabel='gap',
-           title='duality gap convergence')
+    ax.set(xlabel='iteration')
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.savefig(plots_dir+'gap_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot dual residual convergence
     x = range(len(DUAL_RESD))
     fig, ax = plt.subplots()
     ax.plot(x, DUAL_RESD, label='dual residual')
-    ax.set(xlabel='iteration', ylabel='dual residual',
-           title='dual residual convergence')
+    ax.set(xlabel='iteration')
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'dual_residual_convergence_'+graph+'_k2_reduced_rank.png')
+    plt.savefig(plots_dir+'dual_residual_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     # Plot final spectrum of solution
     x = range(rank999)
     fig, ax = plt.subplots()
-    ax.plot(x, eigenvalues_norm[:rank999], 'ro-',
-            label='spectrum (99.9%) of V', linewidth=1)
+    ax.plot(x, eigenvalues_norm[:rank999], 'ro-', linewidth=1)
     ax.set(xlabel='i-th eigenvalue', ylabel='normalized eigenvalue',
-           title='spectrum (99.9%) of V')
+            title='spectrum (99.9%)')
 
     ax.grid()
     plt.legend()
-    plt.savefig(plots_dir+'final_spectrum_'+graph+'_k2_reduced_rank.png')
+    plt.savefig(plots_dir+'final_spectrum_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     if not(fast_execution):
         # Plot solution rank convergence
         x99 = range(len(RANK99))
         fig, ax = plt.subplots()
-        ax.plot(x99, RANK99, label='rank (99%) of V')
+        ax.plot(x99, RANK99, label='rank (99%)')
 
         x999 = range(len(RANK999))
-        ax.plot(x999, RANK999, label='rank (99.9%) of V')
-        ax.set(xlabel='iteration', ylabel='rank(V)',
-            title='solution rank')
+        ax.plot(x999, RANK999, label='rank (99.9%)')
+        ax.set(xlabel='iteration')
 
         ax.grid()
         plt.legend()
-        plt.savefig(plots_dir+'rank_convergence_'+graph+'_k2_reduced_rank.png')
+        plt.savefig(plots_dir+'rank_convergence_'+graph+'_k2_reduced_rank.png',
+                bbox_inches='tight')
 
     print('\nConvergence plots stored at {}'.format(plots_dir))
 
